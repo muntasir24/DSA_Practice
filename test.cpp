@@ -11,6 +11,3 @@ int main()
 
     return 0
 }
-//demos
-##Button added 
-simple button nnnnco
