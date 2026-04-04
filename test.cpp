@@ -7,9 +7,7 @@ int main()
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
-
-    
+    return 0;
 }
 
 //hello from feature add buttongit add
