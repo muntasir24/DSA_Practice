@@ -7,15 +7,14 @@ struct nodecost
 };
 
 int main(){
-    int n = 5, m = 6;
+    int n = 5;
     vector<array<int, 3>> edges = {
         {1, 2, 2},
         {2, 5, 5},
         {2, 3, 4},
         {1, 4, 1},
         {4, 3, 3},
-        {3, 5, 1}
-    };
+        {3, 5, 1}};
     vector<vector<nodecost>> adj(n + 1);
     vector<int> dis(n+1, INT_MAX);
     vector<int> parent(n + 1);
