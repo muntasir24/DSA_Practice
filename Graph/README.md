@@ -56,10 +56,6 @@ graph LR
 4. Relax edges from `1`: `1->2` (weight 3). New dist to `2` is `dist[1] + 3 = 2 + 3 = 5`. Since 5 < 6, update `dist[2]=5`.
 5. Shortest path to `2` is now 5.
 
-### Visual Animation
-Here is an animation demonstrating how Dijkstra's algorithm logically expands outwards, relaxing edges:
-
-![Dijkstra Animation](https://upload.wikimedia.org/wikipedia/commons/5/57/Dijkstra_Animation.gif)
 ---
 
 ## 🛠 Bellman-Ford Algorithm
@@ -124,7 +120,3 @@ graph TD
     K -- Yes --> L[Negative Cycle Detected!]
     K -- No --> M[Shortest Paths Found]
 ```
-### Visual Animation
-Here is an animation of Bellman-Ford scanning edges over multiple iterations:
-
-![Bellman Ford Animation](https://upload.wikimedia.org/wikipedia/commons/7/77/Bellman%E2%80%93Ford_algorithm_example.gif)
