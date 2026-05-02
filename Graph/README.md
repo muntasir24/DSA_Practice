@@ -54,6 +54,16 @@ This folder contains my solutions and notes for various Graph problems and algor
 
 ---
 
+## ⚖️ Shortest Path Algorithms Comparison: When to use what?
+
+| Algorithm | Graph Constraints | When to use? | Why? | Time Complexity |
+| :--- | :--- | :--- | :--- | :--- |
+| **Dijkstra** | Single-Source, Non-negative weights | When you need the shortest path from *one* source to all nodes, and the graph has **no negative edges**. | It uses a greedy approach (Priority Queue) making it practically the fastest for large graphs. Fails on negative weights. | $O(E \log V)$ |
+| **Bellman-Ford** | Single-Source, Handles negative weights | When the graph has **negative weights** or you explicitly need to **detect negative weight cycles**. | Relaxes all edges $V-1$ times. Guaranteed to find shortest paths even with negative weights. Slower than Dijkstra. | $O(V \times E)$ |
+| **Floyd-Warshall** | All-Pairs, Handles negative weights | When you need shortest paths between **every possible pair** of nodes, or graph is small ($V \le 400$). | Computes "all-pairs" simultaneously. Excellent for answering multiple $O(1)$ queries after preprocessing. | $O(V^3)$ |
+
+---
+
 ## 🚀 Dijkstra's Algorithm
 
 ### How it works
