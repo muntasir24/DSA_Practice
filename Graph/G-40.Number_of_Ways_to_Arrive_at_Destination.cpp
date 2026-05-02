@@ -42,6 +42,6 @@ int main()
             }
         }
     }
-    cout<< ways[n - 1]<<endl;
+    cout << ways[n - 1] << endl;
     return 0;
 }
