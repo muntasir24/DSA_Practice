@@ -301,3 +301,159 @@ Let's see how the Adjacency Matrix updates at each iteration when we set $k = 0,
 | **4** | $\infty$ | 1 | $\infty$ | $\infty$ | 0 |
 
 By the end of iterating $k$ sequentially, we evaluated every possible nested combination of paths dynamically, confirming the core algorithm principle!
+
+---
+
+## 🏙️ Problem Deep-Dive: Find the City With the Smallest Number of Neighbors at a Threshold Distance (G-43)
+
+### Why use Floyd-Warshall here instead of Dijkstra?
+
+In this problem, we are asked to evaluate every single city to find out which one can reach the fewest number of other cities within a `distanceThreshold`. 
+To do this, we must know the shortest path from **EVERY city to EVERY OTHER city**. 
+
+Since we need **All-Pairs Shortest Paths**, **Floyd-Warshall** is the most intuitive and direct fit! 
+The problem constraints usually have a very small number of cities ($N \le 100$). For such small constraints, the $O(V^3)$ time complexity of Floyd-Warshall is perfectly acceptable. More importantly, it is **super easy to code** (just 3 simple nested loops) compared to setting up adjacency lists and priority queues.
+
+### Can we use Dijkstra instead?
+
+**Yes, absolutely!** 
+Because all edge distances are positive in this problem (no negative weights), Dijkstra is a perfectly valid and excellent approach.
+
+**How?**
+Dijkstra finds the shortest path from *one* source to all other nodes. Since we need the shortest paths for *every* city, we simply **run Dijkstra $V$ times** (treating each city as a starting node inside a loop).
+
+**Time Complexity using Dijkstra:**
+- One run of Dijkstra takes: $O(E \log V)$
+- Running it $V$ times takes: $O(V \times E \log V)$
+
+### Comparison: Which is better?
+
+| Algorithm | Complexity | When to use for this specific problem? |
+| :--- | :--- | :--- |
+| **Floyd-Warshall** | $O(V^3)$ | Graph is dense, or $V$ is small ($\le 100$). It gives you a clean DP matrix approach without complex data structures. |
+| **Dijkstra ($V$ times)** | $O(V \times E \log V)$ | Graph is sparse (few edges), or $V$ is large (e.g., $10^4$). This will run significantly faster than $O(V^3)$. |
+
+---
+
+## 🌲 Spanning Tree & Minimum Spanning Tree (MST)
+
+### What is a Spanning Tree?
+A **Spanning Tree** of a connected, undirected graph is a subgraph that is a tree and includes **all the vertices** of the original graph.
+Basically, it "spans" across all nodes without forming any cycles.
+
+**Key rules of a Spanning Tree:**
+1. It must contain **all the vertices** (nodes) of the graph.
+2. It must have exactly **$V - 1$ edges** (where $V$ is the number of vertices).
+3. It must have **no cycles** (it's a tree, so no loops allowed).
+4. A single graph can have *many* different spanning trees.
+
+### What is a Minimum Spanning Tree (MST)?
+A **Minimum Spanning Tree (MST)** is a spanning tree where the **sum of the edge weights is as small as possible** (the absolute minimum). 
+
+If a graph has edges with different weights (like costs, distances, or lengths), the MST is the specific spanning tree that connects all the nodes with the lowest total cost.
+
+### 🌎 Real-Life Applications: Why and Where is it Used?
+The main goal of an MST is to connect everything together using the **least amount of resources** (wire, road, cost, etc.).
+
+**1. Network Design (The Classic Example):**
+Imagine you need to lay down fiber-optic internet cables to connect 5 different cities. Laying down cable is extremely expensive per kilometer. You don't need a direct cable between *every single* city, you just need them all to be connected to the same overall network. Using an MST algorithm (like Prim's or Kruskal's) tells you the exact roads to lay cables on to minimize the total kilometers of wire used while ensuring no city is left offline.
+
+**2. Electrical Wiring in Houses:**
+If an electrician is wiring the electrical outlets in a new house, they want to connect all outlets to the main circuit breaker using the minimum length of copper wire to save money.
+
+**3. Water Supply Networks / Pipelines:**
+Connecting water pipes to multiple houses in a neighborhood so that everyone gets water without creating useless, expensive loops in the pipeline.
+
+### Beginner Friendly Example (Mermaid Diagram)
+
+Imagine 4 cities (`A`, `B`, `C`, `D`) and the cost to build roads between them.
+
+**1. The Original Graph (All possible roads & their costs):**
+```mermaid
+graph TD
+    A((A)) -- 1 --- B((B))
+    A -- 4 --- C((C))
+    A -- 3 --- D((D))
+    B -- 2 --- C((C))
+    C -- 5 --- D((D))
+```
+
+To connect all 4 cities, we only need exactly $4 - 1 = 3$ edges. 
+
+**2. The Minimum Spanning Tree (The cheapest way to connect all):**
+If we select the edges `A-B` (cost 1), `B-C` (cost 2), and `A-D` (cost 3), we connect all cities.
+Total Cost = $1 + 2 + 3 = 6$.
+(Any other combination connecting all 4 cities will cost more than 6!)
+
+```mermaid
+graph TD
+    A((A)) -- 1 --- B((B))
+    A -- 3 --- D((D))
+    B -- 2 --- C((C))
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+```
+*Notice how there are no cycles, all 4 cities are connected, and the total cost is minimized.*
+
+---
+
+## 🛠️ Prim's Algorithm
+
+### How Prim's Algorithm Works
+Prim's Algorithm builds the Minimum Spanning Tree one node at a time. It uses a **Priority Queue (Min-Heap)** to always pick the smallest available edge that connects a node we have *already visited* to a node we *haven't visited yet*.
+
+**The core logic is simple:**
+1. Start from any node (usually node `0`). Mark it as visited.
+2. Put all its connected edges into a priority queue.
+3. Pick the smallest edge from the queue. 
+4. **Crucial Check:** If the node this edge goes to is *already visited*, we **skip it (continue)**! Why? Because connecting two already-visited nodes forms a **cycle**, which is forbidden in a tree.
+5. If the node is *not* visited, mark it as visited, add the edge's weight to our total MST sum, and push all its new edges into the queue.
+6. Repeat until all nodes are visited.
+
+### The "Tempting but Cycle-Forming Edge" Scenario
+
+What happens when Prim's encounters an edge that has a very small weight, but picking it would create a loop? Let's look at an intentional trap in a graph!
+
+**The Graph Example:**
+Consider 5 nodes (`0` to `4`). We have a very small, tempting edge between `0` and `2` with a weight of only `2`.
+
+```mermaid
+graph TD
+    0((0)) -- 1 --- 1((1))
+    1 -- 1 --- 2((2))
+    0 -. "2 (Tempting Trap!)" .- 2
+    2 -- 5 --- 3((3))
+    3 -- 4 --- 4((4))
+```
+
+To human eyes, weight `2` looks like a great deal compared to the weights `4` or `5` later in the graph. Should we take it?
+
+**Let's Trace Prim's Steps:**
+1. Start at `0`. Pick edge `0-1` (weight 1). Nodes visited: `0, 1`.
+2. From `1`, pick edge `1-2` (weight 1). Nodes visited: `0, 1, 2`.
+3. Now, the priority queue pops the tempting edge `0-2` (weight 2).
+4. **Wait!** Both `0` and `2` are already visited. If we connect them, we form the cycle `0-1-2-0`. 
+5. Prim's Algorithm says: `"⚠️ Tempting but rejected (Cycle Formed!)"` and safely skips this edge.
+6. Next, it picks `2-3` (weight 5) and `3-4` (weight 4) to finish connecting everyone.
+
+### Final Minimum Spanning Tree
+Here is the final MST. Notice how the tempting `0-2` edge was ignored to prevent the cycle, saving the tree structure!
+
+```mermaid
+graph TD
+    0((0)) -- 1 --- 1((1))
+    1 -- 1 --- 2((2))
+    2 -- 5 --- 3((3))
+    3 -- 4 --- 4((4))
+    
+    style 0 fill:#9f9,stroke:#333,stroke-width:2px
+    style 1 fill:#9f9,stroke:#333,stroke-width:2px
+    style 2 fill:#9f9,stroke:#333,stroke-width:2px
+    style 3 fill:#9f9,stroke:#333,stroke-width:2px
+    style 4 fill:#9f9,stroke:#333,stroke-width:2px
+```
+*Total MST Weight = 1 + 1 + 5 + 4 = 11*
+*The $O(E \log V)$ efficiency of Prim's comes heavily from quickly ignoring these cycle-forming edges (`if(vis[node]) continue;`)!*
