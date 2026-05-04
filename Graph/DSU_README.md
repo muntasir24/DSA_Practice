@@ -1,6 +1,6 @@
 # <span style="color: #2E86C1;">Disjoint Set Union (DSU)</span> Manual
-
-Welcome to the beginner-friendly, highly detailed manual for **Disjoint Set Union (DSU)**. This guide simplifies complex graph operations into easy-to-digest visual steps.
+ 
+This documentation is created based on the **[Striver Graph Series - Lecture 46](https://www.youtube.com/watch?v=aBxjDBC4M1U&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=46)**. It simplifies complex graph operations into easy-to-digest visual steps.
 
 > 💡 **Core Idea**: Understanding how sets merge and how we find their roots efficiently without getting bored!
 
@@ -433,8 +433,8 @@ Node `2` is now officially connected to node `1`, and node `1` sits at the top a
 ```mermaid
 graph TD
     %% Connected Component
-    1(("1<br>(Rank 1)")):::boss
-    2(("2<br>(Rank 0)")):::child
+    1["1<br>Rank 1"]:::boss
+    2["2<br>Rank 0"]:::child
     
     2 -. "parent of 2 is 1" .-> 1
 
@@ -489,9 +489,9 @@ Node `3` connects directly to the ultimate parent `1`. The maximum height of the
 ```mermaid
 graph TD
     %% Connected Component
-    1(("1<br>(Rank 1)")):::boss
-    2(("2<br>(Rank 0)")):::child
-    3(("3<br>(Rank 0)")):::child
+    1["1<br>Rank 1"]:::boss
+    2["2<br>Rank 0"]:::child
+    3["3<br>Rank 0"]:::child
     
     2 -. "parent of 2 is 1" .-> 1
     3 -. "parent of 3 is 1" .-> 1
@@ -544,17 +544,17 @@ A brand new component is formed! Node `5` connects to `4`, and we now have two s
 ```mermaid
 graph TD
     subgraph Component_1 ["Component 1"]
-        1(("1<br>(Rank 1)")):::boss
-        2(("2<br>(Rank 0)")):::child
-        3(("3<br>(Rank 0)")):::child
+        1["1<br>Rank 1"]:::boss
+        2["2<br>Rank 0"]:::child
+        3["3<br>Rank 0"]:::child
         
         2 -.-> 1
         3 -.-> 1
     end
 
     subgraph Component_2 ["Component 2"]
-        4(("4<br>(Rank 1)")):::boss
-        5(("5<br>(Rank 0)")):::child
+        4["4<br>Rank 1"]:::boss
+        5["5<br>Rank 0"]:::child
         
         5 -. "parent of 5 is 4" .-> 4
     end
@@ -605,24 +605,24 @@ Now we have three entirely distinct components in our graph! Every single node i
 ```mermaid
 graph TD
     subgraph Component_1 ["Component 1"]
-        1(("1<br>(Rank 1)")):::boss
-        2(("2<br>(Rank 0)")):::child
-        3(("3<br>(Rank 0)")):::child
+        1["1<br>Rank 1"]:::boss
+        2["2<br>Rank 0"]:::child
+        3["3<br>Rank 0"]:::child
         
         2 -.-> 1
         3 -.-> 1
     end
 
     subgraph Component_2 ["Component 2"]
-        4(("4<br>(Rank 1)")):::boss
-        5(("5<br>(Rank 0)")):::child
+        4["4<br>Rank 1"]:::boss
+        5["5<br>Rank 0"]:::child
         
         5 -.-> 4
     end
 
     subgraph Component_3 ["Component 3"]
-        6(("6<br>(Rank 1)")):::boss
-        7(("7<br>(Rank 0)")):::child
+        6["6<br>Rank 1"]:::boss
+        7["7<br>Rank 0"]:::child
         
         7 -. "parent of 7 is 6" .-> 6
     end
@@ -652,14 +652,14 @@ First, let's look at the two separate components before we merge them, and figur
 ```mermaid
 graph TD
     subgraph Component_2__Boss_is_4_ ["Component 2 (Boss is 4)"]
-        4(("4<br>(Rank 1)")):::boss
-        5(("5<br>(Rank 0)")):::child
+        4["4<br>Rank 1"]:::boss
+        5["5<br>Rank 0"]:::child
         5 -.-> 4
     end
 
     subgraph Component_3__Boss_is_6_ ["Component 3 (Boss is 6)"]
-        6(("6<br>(Rank 1)")):::boss
-        7(("7<br>(Rank 0)")):::child
+        6["6<br>Rank 1"]:::boss
+        7["7<br>Rank 0"]:::child
         7 -.-> 6
     end
 
@@ -704,19 +704,19 @@ Component 2 and Component 3 have now officially merged into a single taller tree
 ```mermaid
 graph TD
     subgraph Component_1 ["Component 1"]
-        1(("1<br>(Rank 1)")):::boss
-        2(("2<br>(Rank 0)")):::child
-        3(("3<br>(Rank 0)")):::child
+        1["1<br>Rank 1"]:::boss
+        2["2<br>Rank 0"]:::child
+        3["3<br>Rank 0"]:::child
         
         2 -.-> 1
         3 -.-> 1
     end
 
     subgraph Merged_Component__Tree_height_increased__ ["Merged Component (Tree height increased!)"]
-        4(("4<br>(Rank 2)")):::superBoss
-        5(("5<br>(Rank 0)")):::child
-        6(("6<br>(Rank 1)")):::midBoss
-        7(("7<br>(Rank 0)")):::child
+        4["4<br>Rank 2"]:::superBoss
+        5["5<br>Rank 0"]:::child
+        6["6<br>Rank 1"]:::midBoss
+        7["7<br>Rank 0"]:::child
         
         5 -.-> 4
         6 -. "parent of 6 is 4" .-> 4
@@ -761,11 +761,11 @@ graph TD
     classDef midBoss fill:#EAEDED,stroke:#7F8C8D,stroke-width:2px,color:#000000;
     classDef targetRed fill:#FDEDEC,stroke:#E74C3C,stroke-width:4px,color:#000000;
     
-    4(("4<br>(Boss)")):::superBoss
-    5(("5")):::midBoss
-    6(("6")):::midBoss
-    7(("7")):::midBoss
-    8(("8")):::targetRed
+    4["4<br>Boss"]:::superBoss
+    5["5"]:::midBoss
+    6["6"]:::midBoss
+    7["7"]:::midBoss
+    8["8"]:::targetRed
 
     5 -.-> 4
     6 -.-> 4
@@ -804,9 +804,9 @@ Congratulations, you figured out that `PU = 4`! But that took multiple steps.
 graph TD
     subgraph Before_Compression__The_Long_Path_ ["Before Compression (The Long Path)"]
         direction BT
-        4(("4<br>(Boss)")):::superBoss
-        6(("6")):::midBoss
-        7(("7")):::targetRed
+        4["4<br>Boss"]:::superBoss
+        6["6"]:::midBoss
+        7["7"]:::targetRed
         
         6 -.-> 4
         7 -. "Path: 7 ➞ 6 ➞ 4" .-> 6
@@ -828,10 +828,10 @@ We update the array state to reflect this newfound shortcut: `parent[7] = 4`.
 ```mermaid
 graph TD
     subgraph After_Path_Compression ["After Path Compression"]
-        4(("4<br>(Boss)")):::superBoss
-        5(("5")):::midBoss
-        6(("6")):::midBoss
-        7(("7<br>(Shortcut!)")):::savedState
+        4["4<br>Boss"]:::superBoss
+        5["5"]:::midBoss
+        6["6"]:::midBoss
+        7["7<br>Shortcut!"]:::savedState
         
         5 -.-> 4
         6 -.-> 4
@@ -863,11 +863,11 @@ graph TD
 
     subgraph Step_1__The_Extremely_Tall_Tree ["Step 1: The Extremely Tall Tree"]
         direction BT
-        1(("1<br>(Boss)")):::superBoss
-        2(("2")):::midBoss
-        3(("3")):::midBoss
-        4(("4")):::midBoss
-        5(("5")):::targetRed
+        1["1<br>Boss"]:::superBoss
+        2["2"]:::midBoss
+        3["3"]:::midBoss
+        4["4"]:::midBoss
+        5["5"]:::targetRed
 
         2 --> 1
         3 --> 2
@@ -889,11 +889,11 @@ Here is what happens during the recursive `Find Parent` call and the magical bac
 ```mermaid
 graph TD
     subgraph Step_2__Star_Graph_after_Backtracking_ ["Step 2: Star Graph after Backtracking!"]
-        1(("1<br>(Boss)")):::superBoss
-        2(("2")):::midBoss
-        3(("3<br>(Rewired!)")):::midBoss
-        4(("4<br>(Rewired!)")):::midBoss
-        5(("5<br>(Rewired!)")):::midBoss
+        1["1<br>Boss"]:::superBoss
+        2["2"]:::midBoss
+        3["3<br>Rewired!"]:::midBoss
+        4["4<br>Rewired!"]:::midBoss
+        5["5<br>Rewired!"]:::midBoss
         
         2 --> 1
         3 == "Direct Link!" ==> 1
@@ -931,18 +931,18 @@ graph TD
     classDef midBoss fill:#EAEDED,stroke:#7F8C8D,stroke-width:2px,color:#000000;
 
     subgraph Component_1 ["Component 1"]
-        1(("1<br>(Boss)")):::superBoss
-        2(("2")):::midBoss
-        3(("3")):::midBoss
+        1["1<br>Boss"]:::superBoss
+        2["2"]:::midBoss
+        3["3"]:::midBoss
         2 --> 1
         3 --> 1
     end
 
     subgraph Component_2 ["Component 2"]
-        4(("4<br>(Boss)")):::superBoss
-        5(("5")):::midBoss
-        6(("6")):::midBoss
-        7(("7")):::midBoss
+        4["4<br>Boss"]:::superBoss
+        5["5"]:::midBoss
+        6["6"]:::midBoss
+        7["7"]:::midBoss
         5 --> 4
         6 --> 4
         7 --> 6
@@ -967,10 +967,10 @@ This is our final edge. We want to connect node `3` and node `7`.
 ```mermaid
 graph TD
     subgraph Path_Compression_on_Node_7 ["Path Compression on Node 7"]
-        4(("4<br>(Boss PU=4)")):::superBoss
-        5(("5")):::midBoss
-        6(("6")):::midBoss
-        7(("7<br>(Compressed!)")):::targetRed
+        4["4<br>Boss PU=4"]:::superBoss
+        5["5"]:::midBoss
+        6["6"]:::midBoss
+        7["7<br>Compressed!"]:::targetRed
         
         5 --> 4
         6 --> 4
@@ -1018,15 +1018,15 @@ graph BT
     classDef child fill:#EAEDED,stroke:#7F8C8D,stroke-width:2px,color:#000000;
     classDef highlight fill:#D5F5E3,stroke:#1E8449,stroke-width:3px,color:#000000;
 
-    4(("4<br>(Boss PU=4)")):::superBoss
+    4["4<br>Boss PU=4"]:::superBoss
     
-    1(("1")):::midBoss
-    5(("5")):::child
-    6(("6")):::child
-    7(("7<br>(Compressed)")):::highlight
+    1["1"]:::midBoss
+    5["5"]:::child
+    6["6"]:::child
+    7["7<br>Compressed"]:::highlight
     
-    2(("2")):::child
-    3(("3")):::child
+    2["2"]:::child
+    3["3"]:::child
 
     %% Connections reflecting exactly the final drawn state
     1 == "Union" ==> 4
@@ -1060,7 +1060,7 @@ Imagine a scenario where Boss `4` has multiple branches, like this:
 ```mermaid
 graph TD
     subgraph Uneven_Compression_Problem ["Uneven Compression Problem"]
-        4(("4<br>(Boss Rank 2)")):::superBoss
+        4["4<br>Boss Rank 2"]:::superBoss
         5((5)):::midBoss
         6((6)):::midBoss
         7((7)):::midBoss
@@ -1123,15 +1123,15 @@ graph BT
     classDef child fill:#EAEDED,stroke:#7F8C8D,stroke-width:2px,color:#000000;
     classDef highlight fill:#D5F5E3,stroke:#1E8449,stroke-width:3px,color:#000000;
 
-    4(("4<br>(Boss PU=4)")):::superBoss
+    4["4<br>Boss PU=4"]:::superBoss
     
-    1(("1")):::midBoss
-    5(("5")):::child
-    6(("6")):::child
-    7(("7<br>(Compressed)")):::child
+    1["1"]:::midBoss
+    5["5"]:::child
+    6["6"]:::child
+    7["7<br>Compressed"]:::child
     
-    2(("2")):::child
-    3(("3<br>(Newly Compressed!)")):::highlight
+    2["2"]:::child
+    3["3<br>Newly Compressed!"]:::highlight
 
     %% Direct connections to 4
     1 == "Union" ==> 4
@@ -1162,13 +1162,13 @@ Imagine we have two separate sets (trees):
 ```mermaid
 graph TD
     subgraph Tree_A__Smaller_Rank_ ["Tree A (Smaller Rank)"]
-        1(("1<br>(Boss)")):::superBoss
+        1["1<br>Boss"]:::superBoss
         2((2)):::child
         2 -.-> 1
     end
 
     subgraph Tree_B__Larger_Rank_ ["Tree B (Larger Rank)"]
-        3(("3<br>(Boss)")):::superBoss
+        3["3<br>Boss"]:::superBoss
         4((4)):::midBoss
         5((5)):::midBoss
         6((6)):::child
@@ -1188,9 +1188,9 @@ What if we disobey the rule and connect the larger Tree B *under* the smaller Tr
 ```mermaid
 graph TD
     %% The Bad Merge
-    1(("1<br>(Wrong Boss!)")):::highlight
+    1["1<br>Wrong Boss!"]:::highlight
     2((2)):::child
-    3(("3")):::midBoss
+    3["3"]:::midBoss
     4((4)):::midBoss
     5((5)):::midBoss
     6((6)):::child
@@ -1217,12 +1217,12 @@ Now, let's follow the Golden Rule: connect the smaller Tree A under the larger T
 ```mermaid
 graph TD
     %% The Good Merge
-    3(("3<br>(Ultimate Boss)")):::superBoss
+    3["3<br>Ultimate Boss"]:::superBoss
     4((4)):::midBoss
     5((5)):::midBoss
     6((6)):::child
     
-    1(("1")):::midBoss
+    1["1"]:::midBoss
     2((2)):::child
     
     1 == "Small joined under Large" ==> 3
@@ -1433,8 +1433,8 @@ Just like before, we have 7 isolated nodes. But instead of Rank `0`, everyone st
 
 ```mermaid
 graph TD
-    1(("1<br>(Size 2)")):::superBoss
-    2(("2<br>(Size 1)")):::child
+    1["1<br>Size 2"]:::superBoss
+    2["2<br>Size 1"]:::child
     2 -.-> 1
     
     classDef superBoss fill:#FCF3CF,stroke:#F1C40F,stroke-width:4px,color:#000000;
@@ -1455,9 +1455,9 @@ graph TD
 
 ```mermaid
 graph TD
-    1(("1<br>(Size 3)")):::superBoss
-    2(("2<br>(Size 1)")):::child
-    3(("3<br>(Size 1)")):::child
+    1["1<br>Size 3"]:::superBoss
+    2["2<br>Size 1"]:::child
+    3["3<br>Size 1"]:::child
     
     2 -.-> 1
     3 -.-> 1
@@ -1484,14 +1484,14 @@ We do exactly the same for isolated pairs `(4, 5)` and `(6, 7)`.
 ```mermaid
 graph TD
     subgraph Component_2 ["Component 2"]
-        4(("4<br>(Size 2)")):::superBoss
-        5(("5")):::child
+        4["4<br>Size 2"]:::superBoss
+        5["5"]:::child
         5 -.-> 4
     end
 
     subgraph Component_3 ["Component 3"]
-        6(("6<br>(Size 2)")):::superBoss
-        7(("7")):::child
+        6["6<br>Size 2"]:::superBoss
+        7["7"]:::child
         7 -.-> 6
     end
 
@@ -1513,10 +1513,10 @@ graph TD
 
 ```mermaid
 graph TD
-    4(("4<br>(Size 4)")):::superBoss
-    5(("5")):::child
-    6(("6<br>(Former Boss)")):::midBoss
-    7(("7")):::child
+    4["4<br>Size 4"]:::superBoss
+    5["5"]:::child
+    6["6<br>Former Boss"]:::midBoss
+    7["7"]:::child
     
     5 -.-> 4
     6 == "Added Size 2" ==> 4
@@ -1542,15 +1542,15 @@ graph TD
 
 ```mermaid
 graph BT
-    4(("4<br>(Absolute Boss Size 7)")):::superBoss
+    4["4<br>Absolute Boss Size 7"]:::superBoss
     
-    1(("1<br>(Size 3)")):::midBoss
-    5(("5")):::child
-    6(("6")):::child
-    7(("7<br>(Compressed)")):::highlight
+    1["1<br>Size 3"]:::midBoss
+    5["5"]:::child
+    6["6"]:::child
+    7["7<br>Compressed"]:::highlight
     
-    2(("2")):::child
-    3(("3")):::child
+    2["2"]:::child
+    3["3"]:::child
 
     1 == "Added Size 3" ==> 4
     5 --> 4
