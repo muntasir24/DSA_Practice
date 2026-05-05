@@ -457,3 +457,38 @@ graph TD
 ```
 *Total MST Weight = 1 + 1 + 5 + 4 = 11*
 *The $O(E \log V)$ efficiency of Prim's comes heavily from quickly ignoring these cycle-forming edges (`if(vis[node]) continue;`)!*
+
+---
+
+## 🛠️ Kruskal's Algorithm
+
+### How Kruskal's Algorithm Works (The "Greedy Edge Picker")
+While Prim's Algorithm grows the tree like a spreading spider web from one single starting point, **Kruskal's Algorithm** doesn't care about starting points! It just looks at the entire map, finds the absolute cheapest roads anywhere, and buys them one by one.
+
+**The core logic is incredibly easy:**
+1. **List them:** Put every single edge in a big list.
+2. **Sort them:** Sort the list strictly from lowest weight to highest weight (cheapest first).
+3. **Pick & Check:** Go down the list, picking the cheapest edge.
+   - If connecting this edge forms a **loop (cycle)**, throw it in the trash! 🗑️
+   - If it doesn't form a loop, keep it. You just bought a piece of the Minimum Spanning Tree! 🎉
+4. Keep going until you have successfully connected all the nodes.
+
+### But wait... How do we easily check for cycles?
+This is exactly where the **Disjoint Set Union (DSU)** data structure comes to the rescue as a superhero! 🦸‍♂️
+
+Whenever we consider picking an edge between Node `u` and Node `v`:
+- We ask DSU: *"Hey, are `u` and `v` already connected to the same Ultimate Boss?"*  
+  Code syntax: `if (ds.findUParent(u) == ds.findUParent(v))`
+- If **Yes**: It means they are already secretly connected through some other path. Adding this new edge will definitely create a cycle. So, we immediately **reject** it.
+- If **No**: Safe! We add the edge weight to our MST total, and tell the DSU to merge their teams (`ds.unionSize(u, v)`).
+
+### Beginner Friendly Visual Example
+Imagine we have a sorted edge list:
+1. `Weight 1 (Node 1 - Node 4)`: DSU says different bosses. **Pick it!** Connect 1 and 4.
+2. `Weight 2 (Node 1 - Node 2)`: DSU says different bosses. **Pick it!** Connect 1 and 2.
+3. `Weight 3 (Node 2 - Node 4)`: DSU says: **Wait!** `Node 2` and `Node 4` both point to `Node 1` as their ultimate boss. They are already in the same team! If you connect 2 and 4, you form a cycle! **Reject it.** 🚫
+
+### Prim's vs Kruskal's: Which one to use?
+- Both algorithms generally run in roughly $O(E \log E)$ or $O(E \log V)$ time.
+- **Kruskal's** is heavily preferred by competitive programmers because if you already have a pre-written DSU template, Kruskal's takes almost zero brainpower to write. Just `sort()` the edges, loop through them, and use DSU!
+- **Prim's** is sometimes slightly better if you have an extremely **dense graph** (a graph where almost every node is connected to every other node), but generally, it comes down to your personal coding style preference!
