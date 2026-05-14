@@ -22,7 +22,7 @@ This folder contains my solutions and notes for various Graph problems and algor
 16. **G-39. Minimum_Multiplications_to_Reach_End.cpp** - Dijkstra's concept applied on a modulo graph `(node * arr[i]) % 100000`.
 17. **G-40. Number_of_Ways_to_Arrive_at_Destination.cpp** - Maintained an extra `ways[]` array in Dijkstra to count paths with the exact shortest distance.
 18. **G-41. Bellman_Ford_Algorithm.cpp** - Learned how to compute shortest paths with negative weights and detect negative cycles.
-19. **G-42. Floyd_Warshall_Algorithm.cpp** - Learned how to compute all-pairs shortest paths using the Dynamic Programming based Floyd-Warshall Algorithm.
+20. **G-50. Accounts Merge.cpp** - Used Disjoint Set Union (DSU) to group emails belonging to the same account by mapping strings to integers, and tackled issues with ultimate parent retrieval and C++ pass-by-reference.
 
 ---
 
@@ -492,3 +492,133 @@ Imagine we have a sorted edge list:
 - Both algorithms generally run in roughly $O(E \log E)$ or $O(E \log V)$ time.
 - **Kruskal's** is heavily preferred by competitive programmers because if you already have a pre-written DSU template, Kruskal's takes almost zero brainpower to write. Just `sort()` the edges, loop through them, and use DSU!
 - **Prim's** is sometimes slightly better if you have an extremely **dense graph** (a graph where almost every node is connected to every other node), but generally, it comes down to your personal coding style preference!
+
+---
+
+## 📧 Problem Deep-Dive: Accounts Merge (G-50)
+
+In this problem, we group strings (emails) by mapping them to integer IDs and using Disjoint Set Union (DSU). During implementation, two critical bugs were resolved regarding tree roots and memory references.
+
+### Concept 1: Ultimate Parent vs Immediate Parent in DSU
+
+**1) What it is:**
+In a Disjoint Set Union (DSU) structure, the `parent` array tracks node connections. However, because union operations can create deep trees, `parent[i]` might only point to an intermediate parent, not the final "Ultimate Parent" (the set's true representative).
+
+**2) The Problem without Ultimate Parent:**
+When collecting groups at the end of the algorithm, reading directly from `ds.parent[i]` groups elements by their intermediate nodes instead of their true root. This causes related emails to be wrongly split into different accounts (e.g., Bob's emails getting mixed into Alex's account).
+
+**Problem Code:**
+```cpp
+for (int i = 0; i < n; i++) {
+    string mail = mpInverse[i];
+    int prnt = ds.parent[i]; // Bug: Retrieves intermediate parent, not the true root!
+    int idx = mailIndex[prnt];
+    ans[idx].push_back(mail);
+}
+```
+
+**3) The Solution with Ultimate Parent:**
+Always use the `findUlParent(i)` method when checking final group affiliations. This triggers "Path Compression" and guarantees that you are getting the absolute root leader of the set.
+
+**Solution Code:**
+```cpp
+for (int i = 0; i < n; i++) {
+    string mail = mpInverse[i];
+    int prnt = ds.findUlParent(i); // Fix: Jumps straight to the Ultimate Parent
+    int idx = mailIndex[prnt];
+    ans[idx].push_back(mail);
+}
+```
+
+**4) A Real-Life Analogy:**
+Imagine a company hierarchy: Employee $\to$ Manager $\to$ Regional Director $\to$ CEO.
+- **Problem:** If you ask the Employee for their immediate manager (`ds.parent[i]`), they give you the Manager. Sending a direct report to the "company head" using this name will fail.
+- **Solution:** By asking "Who is the absolute top boss?" (`ds.findUlParent(i)`), you instantly bypass the middle management and correctly group everyone under the CEO.
+
+**Analogy Code:**
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    // 0 is CEO. 1 reports to 0. 2 reports to 1. 3 reports to 2.
+    vector<int> boss = {0, 0, 1, 2}; 
+    int employee = 3;
+    
+    // Problem way (Immediate Parent):
+    int immediate_boss = boss[employee]; // Returns 2. Not the CEO!
+    
+    // Solution way (Ultimate Parent / Path Compression logic):
+    int final_boss = employee;
+    while(boss[final_boss] != final_boss) {
+        final_boss = boss[final_boss];
+    }
+    // Returns 0 (The actual CEO)
+    return 0;
+}
+```
+
+### Concept 2: Pass by Value vs Pass by Reference in C++
+
+**1) What it is:**
+In C++, a range-based for loop like `for(auto u : vector)` iterates by copying each element into `u` (Pass by Value). To modify the original element directly in its memory location, it must be `for(auto &u : vector)` (Pass by Reference).
+
+**2) The Problem without Reference (`&`):**
+When iterating through the collected email groups to sort and insert the account name, failing to use `&` means you are modifying a temporary copy of the array. The original `ans` array remains unchanged, meaning the inserted account names are lost when returning the answer.
+
+**Problem Code:**
+```cpp
+for(auto u : ans){ // Bug: 'u' is a temporary copy of the array
+    if(u.empty()) continue;
+    sort(u.begin(), u.end());
+    u.insert(u.begin(), emailtoName[u[0]]); // Updates the copy, then throws it away
+}
+return ans; // 'ans' still doesn't have the names at the start!
+```
+
+**3) The Solution with Reference (`&`):**
+Use the `&` operator to pass the sub-array by reference, or alternatively, push the modified local copy into a brand new `finalAns` matrix.
+
+**Solution Code:**
+```cpp
+vector<vector<string>> finalAns;
+for(auto &u : ans){ // Fix: 'u' references the actual memory (or push to new array)
+    if(u.empty()) continue;
+    
+    sort(u.begin(), u.end());
+    u.insert(u.begin(), emailtoName[u[0]]);
+    
+    finalAns.push_back(u); // Preserves the changes perfectly
+}
+return finalAns;
+```
+
+**4) A Real-Life Analogy:**
+Suppose you have an original printed document.
+- **Problem:** Taking a photocopy (`auto u`), signing the photocopy, and handing in the original unsigned document. The receiver sees no signature!
+- **Solution:** You must either sign explicitly with a pen on the original document (`auto &u`), or you take the signed photocopies, place them into a brand new marked folder, and hand in the new folder (`finalAns.push_back(u)`).
+
+**Analogy Code:**
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    vector<int> original_file = {1, 2, 3};
+
+    // Problem: Modifying a photocopy (Pass by value)
+    for (auto copy_file : original_file) {
+        copy_file = copy_file + 10; 
+    }
+    // original_file remains {1, 2, 3}
+
+    // Solution: Modifying the original (Pass by reference)
+    for (auto &real_file : original_file) {
+        real_file = real_file + 10; 
+    }
+    // original_file successfully becomes {11, 12, 13}
+    return 0;
+}
+```
