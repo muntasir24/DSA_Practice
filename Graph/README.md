@@ -23,6 +23,104 @@ This folder contains my solutions and notes for various Graph problems and algor
 17. **G-40. Number_of_Ways_to_Arrive_at_Destination.cpp** - Maintained an extra `ways[]` array in Dijkstra to count paths with the exact shortest distance.
 18. **G-41. Bellman_Ford_Algorithm.cpp** - Learned how to compute shortest paths with negative weights and detect negative cycles.
 20. **G-50. Accounts Merge.cpp** - Used Disjoint Set Union (DSU) to group emails belonging to the same account by mapping strings to integers, and tackled issues with ultimate parent retrieval and C++ pass-by-reference.
+21. **G-51. Number of Islands - II - Online Queri.cpp** - Used Disjoint Set Union (DSU) on a 2D grid by converting 2D coordinates `(x, y)` to a 1D mapping (`x * m + y`), removing the need for slow `map/unordered_map`.
+
+---
+
+## 🗺️ 2D to 1D Array Mapping in DSU (Number of Islands II)
+
+### 1. What it is
+Disjoint Set Union (DSU) সাধারণত 1D array (`parent`, `size`) নিয়ে কাজ করে। কিন্তু ग्रিড (Grid) বা 2D Matrix এর প্রবলেমে আমাদের ডাটা থাকে `(x, y)` কোঅর্ডিনেট আকারে। 2D to 1D Mapping হলো একটি গাণিতিক ফর্মুলা যার মাধ্যমে যেকোনো 2D সেলের `(x, y)` পজিশনকে একটি ইউনিক (Unique) 1D ইনডেক্সে বা নাম্বারে কনভার্ট করা যায়।
+
+ফর্মুলা: **`1D_Index = x * m + y`** (যেখানে `m` হলো কলাম সংখ্যা)।
+
+### 2. The Problem
+DSU-তে প্যারেন্ট ট্র্যাক করার জন্য আমাদের একটি ইনডেক্স প্রয়োজন। শুরুতে আমরা `(x, y)` পেয়ার (pair) কে ট্র্যাক করার জন্য `std::map<pair<int,int>, int>` বা C++ এ `unordered_map` ব্যবহার করতাম। কিন্তু `map` ব্যবহার করলে টাইম কমপ্লেক্সিটি অনেক বেড়ে যায় ($O(\log N)$) এবং কোড ধীরগতির হয়ে পড়ে। 
+
+**Problem Code:**
+```cpp
+// G-51 কোড থেকে (Wrong way)
+map<pair<int, int>, int> mp;
+int cnt = 0;
+for (int i = 0; i < A.size(); i++) {
+    auto el = A[i];
+    if(mp.find({el[0],el[1]}) == mp.end()){
+        mp[{el[0], el[1]}] = cnt;
+        cnt++;
+    }
+}
+// অনেকগুলো Query এর জন্য Map এর find এবং insert খুবই Slow।
+```
+
+### 3. The Solution
+আমরা `map` কে পুরোপুরি বাদ দিয়ে $O(1)$ টাইমে ডাইরেক্ট ম্যাথ ফর্মুলা (`x * m + y`) ব্যবহার করে 2D পজিশনকে 1D তে কনভার্ট করতে পারি। 
+
+ধরি একটি $4 \times 5$ গ্রিড আছে ($n = 4, m = 5$):
+- সেল `(0, 0)` $\to 0 \times 5 + 0 = 0$
+- সেল `(1, 3)` $\to 1 \times 5 + 3 = 8$
+- সেল `(2, 2)` $\to 2 \times 5 + 2 = 12$
+- সেল `(3, 4)` $\to 3 \times 5 + 4 = 19$ (সর্বোচ্চ ইনডেক্স $n \times m - 1$)
+
+এখানে আমরা $m$ (কলাম সংখ্যা) দিয়ে গুন করছি কারণ প্রতি Row তে $m$ পরিমাণ সেল থাকে। 
+
+**Solution Code:**
+```cpp
+// G-51 কোড থেকে (Optimized way)
+Disjoint ds(n * m); // map এর বদলে সরাসরি n*m সাইজের DSU
+
+for (int i = 0; i < queries.size(); i++) {
+    int x = queries[i][0];
+    int y = queries[i][1];
+    
+    // ...
+    int u = x * m + y; // 2D -> 1D কনভার্সন (Current node)
+    
+    for (int j = 0; j < 4; j++) {
+        int newX = dx[j] + x;
+        int newY = dy[j] + y;
+        
+        if (newX >= 0 and newX < n and newY >= 0 and newY < m) {
+            if(mat[newX][newY] == 1){
+                int v = newX * m + newY; // 2D -> 1D কনভার্সন (Neighbor node)
+                tmpcnt += ds.unionBySize(u, v);
+            }
+        }
+    }
+    // ...
+}
+```
+
+### 4. A Real-Life Analogy
+**Analogy:** 
+ধরে নিন, একটি পরীক্ষার হলে অনেকগুলো বেঞ্চ (Rows) আছে এবং প্রতি লাইনে ৫টি করে সিট (Columns/Seats) আছে।
+- প্রথম লাইনের (Row 0) সিট নাম্বার: 0, 1, 2, 3, 4
+- দ্বিতীয় লাইনের (Row 1) সিট নাম্বার: 5, 6, 7, 8, 9
+
+যদি কেউ বলে, "আমি ২য় লাইনের (Row 1) ৩ নাম্বার ডেস্কে (Column 3) বসেছি।"
+তাহলে তার রোল নাম্বার বা ইউনিক আইডেন্টিটি কত হবে?
+সে তার সামনের লাইনগুলোর সবার সিট স্কিপ করে এসেছে (1 row $\times$ 5 seats = 5)। এর সাথে তার বর্তমান লাইনের ৩ নাম্বার পজিশন যোগ করলেই ইউনিক সিট নাম্বার বের হয়ে যাবে $\to 1 \times 5 + 3 = 8$।  
+
+**Analogy Code:**
+```typescript
+class ExamHall {
+    totalColumns: number;
+
+    constructor(columns: number) {
+        this.totalColumns = columns;
+    }
+
+    getUniqueSeatNumber(row: number, col: number): number {
+        // row * totalColumns -> Skip the seats of all previous rows
+        // + col -> Move to the exact seat in the current row
+        return (row * this.totalColumns) + col;
+    }
+}
+
+const hall = new ExamHall(5); // 5 seats per row (m = 5)
+
+console.log("Unique ID for (Row 1, Col 3): " + hall.getUniqueSeatNumber(1, 3)); // Output: 8
+console.log("Unique ID for (Row 3, Col 4): " + hall.getUniqueSeatNumber(3, 4)); // Output: 19
+```
 
 ---
 
