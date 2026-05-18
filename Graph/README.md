@@ -24,6 +24,7 @@ This folder contains my solutions and notes for various Graph problems and algor
 18. **G-41. Bellman_Ford_Algorithm.cpp** - Learned how to compute shortest paths with negative weights and detect negative cycles.
 20. **G-50. Accounts Merge.cpp** - Used Disjoint Set Union (DSU) to group emails belonging to the same account by mapping strings to integers, and tackled issues with ultimate parent retrieval and C++ pass-by-reference.
 21. **G-51. Number of Islands - II - Online Queri.cpp** - Used Disjoint Set Union (DSU) on a 2D grid by converting 2D coordinates `(x, y)` to a 1D mapping (`x * m + y`), removing the need for slow `map/unordered_map`.
+22. **G-54. Strongly Connected Components - Kosaraju's Algorithm.cpp** - Learned how to count and find Strongly Connected Components (SCC) in a directed graph using Kosaraju's Algorithm.
 
 ---
 
@@ -720,3 +721,23 @@ int main() {
     return 0;
 }
 ```
+
+---
+
+## 🔄 Strongly Connected Components (Kosaraju's Algorithm)
+
+### What is a Strongly Connected Component (SCC)?
+An SCC is a component (a subset of vertices) of a **directed graph** where every single node is reachable from every other node in that component. If you take any two nodes `u` and `v` inside an SCC, there will always be a path from `u` to `v` AND a path from `v` to `u`. 
+*(Note: Strongly Connected Components are only valid for directed graphs).*
+
+### How Kosaraju's Algorithm Solves It
+If you try to run a normal DFS to find components in a directed graph, the DFS might leave its actual SCC and wander off into other SCCs because of outgoing connecting edges. Kosaraju's algorithm elegantly separates them by treating SCCs like nodes in a Topological Sort. It does this in three straightforward steps:
+
+1. **Topological/Finishing Time Sort (DFS 1):** 
+   Perform a DFS on the original graph. Once a node has completely finished exploring all its neighbors, push it onto a `Stack`. This ensures that nodes belonging to "sink" SCCs (where you can enter but not leave) end up finishing first and are at the bottom of the stack, while the starting/source SCCs end up at the top.
+   
+2. **Reverse the Graph (Transpose):** 
+   Reverse the direction of every single edge in the graph. By doing this, the internal connectivity of an SCC remains completely intact (since every node can already reach every other node), but the edges *between* different SCCs are flipped. A previously outgoing edge to another SCC becomes an incoming edge!
+   
+3. **DFS on Reversed Graph (DFS 2):** 
+   Pop nodes from the top of the `Stack` one by one. If the popped node is unvisited, start a new DFS on the reversed graph. Because the inter-SCC edges are now reversed, the DFS is physically trapped inside its own SCC and cannot escape to previously unvisited SCCs. Each successful DFS call from the sequence pops out exactly one complete SCC!
