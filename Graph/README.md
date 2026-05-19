@@ -25,6 +25,7 @@ This folder contains my solutions and notes for various Graph problems and algor
 20. **G-50. Accounts Merge.cpp** - Used Disjoint Set Union (DSU) to group emails belonging to the same account by mapping strings to integers, and tackled issues with ultimate parent retrieval and C++ pass-by-reference.
 21. **G-51. Number of Islands - II - Online Queri.cpp** - Used Disjoint Set Union (DSU) on a 2D grid by converting 2D coordinates `(x, y)` to a 1D mapping (`x * m + y`), removing the need for slow `map/unordered_map`.
 22. **G-54. Strongly Connected Components - Kosaraju's Algorithm.cpp** - Learned how to count and find Strongly Connected Components (SCC) in a directed graph using Kosaraju's Algorithm.
+23. **G-55. Bridges in Graph - Using Tarjan's Algorithm of time in and low time.cpp** - Learned to find critical connections (bridges) that split the graph into multiple components upon removal, tracking `time in` and `low time` using Tarjan's Algorithm.
 
 ---
 
@@ -559,38 +560,98 @@ graph TD
 
 ---
 
-## 🛠️ Kruskal's Algorithm
+## 🌉 Bridges in Graph (Tarjan's Algorithm)
 
-### How Kruskal's Algorithm Works (The "Greedy Edge Picker")
-While Prim's Algorithm grows the tree like a spreading spider web from one single starting point, **Kruskal's Algorithm** doesn't care about starting points! It just looks at the entire map, finds the absolute cheapest roads anywhere, and buys them one by one.
+### 1. What it is
+A **Bridge** (or Critical Connection) is an edge in a graph whose removal breaks the graph into two or more disconnected components. To efficiently find all bridges, we use a single **DFS traversal** tracking two things:
+- `disc` (Time of Insertion): The step at which we first reach a node.
+- `low` (Lowest Time of Insertion): The lowest discovery time reachable from the current node (ignoring its parent). 
 
-**The core logic is incredibly easy:**
-1. **List them:** Put every single edge in a big list.
-2. **Sort them:** Sort the list strictly from lowest weight to highest weight (cheapest first).
-3. **Pick & Check:** Go down the list, picking the cheapest edge.
-   - If connecting this edge forms a **loop (cycle)**, throw it in the trash! 🗑️
-   - If it doesn't form a loop, keep it. You just bought a piece of the Minimum Spanning Tree! 🎉
-4. Keep going until you have successfully connected all the nodes.
+### 2. The Problem
+If we want to find all bridges, the naive approach is to temporarily remove each edge one by one and run a DFS to check if the graph got split. This is incredibly slow and takes $O(E \times (V+E))$ time.
 
-### But wait... How do we easily check for cycles?
-This is exactly where the **Disjoint Set Union (DSU)** data structure comes to the rescue as a superhero! 🦸‍♂️
+**Problem Code:**
+```cpp
+// Naive Way (Wrong/Slow way)
+for (auto edge : edges) {
+    removeEdge(edge);
+    int components = countComponents(graph); // Needs massive DFS/BFS again
+    
+    if (components > originalComponents) {
+        bridges.push_back(edge); // It's a bridge!
+    }
+    addEdge(edge); // Place it back
+}
+```
 
-Whenever we consider picking an edge between Node `u` and Node `v`:
-- We ask DSU: *"Hey, are `u` and `v` already connected to the same Ultimate Boss?"*  
-  Code syntax: `if (ds.findUParent(u) == ds.findUParent(v))`
-- If **Yes**: It means they are already secretly connected through some other path. Adding this new edge will definitely create a cycle. So, we immediately **reject** it.
-- If **No**: Safe! We add the edge weight to our MST total, and tell the DSU to merge their teams (`ds.unionSize(u, v)`).
+### 3. The Solution
+We can optimize this to $O(V+E)$ by using Tarjan's logic. As we traverse, we update the `low` time based on visited adjacent nodes (excluding the direct parent). A bridge is found if, after visiting a child node, its lowest reachable time is strictly greater than the parent's discovery time (`disc[parent] < low[node]` in the code structurally below, where `parent` acts as previous and `node` acts as child). This means the child has no back-edge to reach any earlier completely visited node! 
 
-### Beginner Friendly Visual Example
-Imagine we have a sorted edge list:
-1. `Weight 1 (Node 1 - Node 4)`: DSU says different bosses. **Pick it!** Connect 1 and 4.
-2. `Weight 2 (Node 1 - Node 2)`: DSU says different bosses. **Pick it!** Connect 1 and 2.
-3. `Weight 3 (Node 2 - Node 4)`: DSU says: **Wait!** `Node 2` and `Node 4` both point to `Node 1` as their ultimate boss. They are already in the same team! If you connect 2 and 4, you form a cycle! **Reject it.** 🚫
+If it can't reach back, the edge between them is critically keeping them connected.
 
-### Prim's vs Kruskal's: Which one to use?
-- Both algorithms generally run in roughly $O(E \log E)$ or $O(E \log V)$ time.
-- **Kruskal's** is heavily preferred by competitive programmers because if you already have a pre-written DSU template, Kruskal's takes almost zero brainpower to write. Just `sort()` the edges, loop through them, and use DSU!
-- **Prim's** is sometimes slightly better if you have an extremely **dense graph** (a graph where almost every node is connected to every other node), but generally, it comes down to your personal coding style preference!
+**Solution Code:**
+```cpp
+// From G-55 code (Optimized Tarjan's approach)
+void dfs(vector<vector<int>>&ans, int node, int parent, int Time, vector<vector<int>> &adj, vector<int>& disc, vector<int>& low, vector<int>& vis){
+    vis[node] = 1;
+    disc[node] = low[node] = ++Time;
+
+    for(auto child:adj[node]){
+        if(child!=parent and !vis[child]){
+            dfs(ans,child, node, Time, adj, disc, low, vis);
+        }
+        else if(child!=parent and vis[child]){
+            low[node] = min(low[node], low[child]);
+        }
+    }
+    // done processing
+    low[parent] = min(low[parent], low[node]);
+    if(disc[parent]<low[node]){
+        ans.push_back({parent, node});
+    }
+}
+```
+
+### 4. A Real-Life Analogy
+**Analogy:** 
+Imagine islands connected by physical bridges. Suppose you start at Island 1 and go to Island 2, then from Island 2 to Island 3. 
+While traversing Island 3, if you find a secret boat route (or another back-bridge) directly to Island 1, it means the bridge between Island 2 and Island 3 is not critical (you can just use the secret route to go back around). 
+However, if Island 3's lowest reachable destination is just Island 3 itself (it can't reach anywhere back prior to Island 2!), it means if the bridge from Island 2 to 3 collapses, Island 3 is completely isolated and split away.
+
+**Analogy Code:**
+```typescript
+class IslandTracker {
+    time: number = 0;
+    
+    discoverBridges(
+        island: string,
+        parentIsland: string,
+        disc: Map<string, number>,
+        low: Map<string, number>
+    ) {
+        this.time++;
+        disc.set(island, this.time);
+        low.set(island, this.time);
+        
+        // Simulating that child islands would report back their lowest reachable point
+        // If isolated, its lowest reachable point is strictly greater than parent's discovery time
+        const lowestReachableFromChild = this.time + 1; 
+        
+        const parentTime = disc.get(parentIsland);
+        if (parentTime !== undefined && parentTime < lowestReachableFromChild) {
+            console.log(`Bridge Found! Removing ${parentIsland} -- ${island} isolates the child.`);
+        }
+    }
+}
+
+const tracker = new IslandTracker();
+const discT = new Map<string, number>();
+const lowT = new Map<string, number>();
+
+discT.set("Island A", 1);
+tracker.discoverBridges("Island B", "Island A", discT, lowT); 
+// Output: Bridge Found! Removing Island A -- Island B isolates the child.
+```
 
 ---
 
@@ -741,3 +802,116 @@ If you try to run a normal DFS to find components in a directed graph, the DFS m
    
 3. **DFS on Reversed Graph (DFS 2):** 
    Pop nodes from the top of the `Stack` one by one. If the popped node is unvisited, start a new DFS on the reversed graph. Because the inter-SCC edges are now reversed, the DFS is physically trapped inside its own SCC and cannot escape to previously unvisited SCCs. Each successful DFS call from the sequence pops out exactly one complete SCC!
+
+---
+
+## 5. Tarjan's Step-by-Step Example (Visualized)
+
+Let's walk through the exact steps for the provided graph (Nodes 1 to 12) to see how Tarjan's Algorithm dynamically updates `disc` (discovery time) and `low` (lowest reachable discovery time) to find Bridges.
+
+*Assume `timer` counter starts at 0.*
+
+### **Step 1: The Initial DFS Dive**
+Algorithm starts at Node `1` and dives down eagerly (`1 -> 2 -> 3 -> 4`).
+For each node, we set `disc = timer` and `low = timer`.
+```mermaid
+graph TD
+    1[["Node 1
+    (disc:1, low:1)"]] --- 2[["Node 2
+    (disc:2, low:2)"]]
+    2 --- 3[["Node 3
+    (disc:3, low:3)"]]
+    3 --- 4[["Node 4
+    (disc:4, low:4)"]]
+    
+    style 1 fill:#bbf,stroke:#333
+    style 2 fill:#bbf,stroke:#333
+    style 3 fill:#bbf,stroke:#333
+    style 4 fill:#bbf,stroke:#333
+```
+
+### **Step 2: Back-edge Discovery (The Cycle 1-2-3-4)**
+Node `4` checks its unvisited neighbors. It sees Node `1`! Wait, Node `1` is already visited, and it's not the direct parent of `4`. Therefore, it's a **Back-edge**. Node 4 updates its `low` to the discovery time of 1 `(min(low[4], disc[1]) = 1)`. 
+```mermaid
+graph TD
+    1[["Node 1
+    (disc:1, low:1)"]] --- 2[["Node 2
+    (disc:2, low:2)"]]
+    2 --- 3[["Node 3
+    (disc:3, low:3)"]]
+    3 --- 4[["Node 4
+    (disc:4, low:1)
+    *UPDATED*"]]
+    4 -.-|Back-edge found!| 1
+    
+    style 4 fill:#f9f,stroke:#333,stroke-width:3px
+```
+
+### **Step 3: Finding the First Bridge (`4 -- 5`)**
+Node 4 then visits Node 5. Node 5 finishes its massive DFS down below (Nodes 6 to 12) and eventually returns because none of them had a back-edge to `1, 2, 3, or 4`. The `low` returned from 5 is `5`.
+**Check:** `disc[4] < low[5]` ➡️ `4 < 5` is **TRUE**. Bridge confirmed!
+```mermaid
+graph TD
+    4[["Node 4
+    (disc:4, low:1)"]] ===|BRIDGE FOUND!
+    4 < 5| 5[["Node 5
+    (disc:5, low:5)"]]
+    5 --- 6(("Node 6 Below..."))
+    
+    style 4 fill:#bbf,stroke:#333
+    style 5 fill:#f96,stroke:#333,stroke-width:2px
+    linkStyle 0 stroke:red,stroke-width:4px
+```
+
+### **Step 4: The Lower Cycle (6 to 9) and Second Bridge**
+Inside the DFS of 6, it visits `7 -> 8 -> 9`. Node `9` finds a back-edge to `6`, making its `low=6`. As it returns, 8 and 7 also adopt `low=6`, effectively making them one solid block.
+Node 5 eventually checks if 6 can reach anything before it.
+**Check:** `disc[5] < low[6]` ➡️ `5 < 6` is **TRUE**. Bridge confirmed!
+```mermaid
+graph TD
+    5[["Node 5
+    (disc:5, low:5)"]] ===|BRIDGE FOUND!
+    5 < 6| 6[["Node 6
+    (disc:6, low:6)"]]
+    
+    6 --- 7[["Node 7
+    (disc:7, low:6)"]]
+    7 --- 8[["Node 8
+    (disc:8, low:6)"]]
+    8 --- 9[["Node 9
+    (disc:9, low:6)"]]
+    9 -.-|Back-edge| 6
+    
+    style 5 fill:#f96,stroke:#333
+    style 6 fill:#bfb,stroke:#333
+    style 7 fill:#bfb,stroke:#333
+    style 8 fill:#bfb,stroke:#333
+    style 9 fill:#bfb,stroke:#333
+    linkStyle 0 stroke:red,stroke-width:4px
+```
+
+### **Step 5: The Bottom Cycle (10 to 12) and Third Bridge**
+From Node 8, the DFS visits `10 -> 11 -> 12`. Node `12` finds a back-edge to `10`, making its `low=10`. This bubbles back up to 11 and 10.
+When 10 returns to 8, Node 8 checks the condition.
+**Check:** `disc[8] < low[10]` ➡️ `8 < 10` is **TRUE**. Bridge confirmed!
+```mermaid
+graph TD
+    8[["Node 8
+    (disc:8, low:6)"]] ===|BRIDGE FOUND!
+    8 < 10| 10[["Node 10
+    (disc:10, low:10)"]]
+    
+    10 --- 11[["Node 11
+    (disc:11, low:10)"]]
+    11 --- 12[["Node 12
+    (disc:12, low:10)"]]
+    12 -.-|Back-edge| 10
+    
+    style 8 fill:#bfb,stroke:#333
+    style 10 fill:#fdd,stroke:#333
+    style 11 fill:#fdd,stroke:#333
+    style 12 fill:#fdd,stroke:#333
+    linkStyle 0 stroke:red,stroke-width:4px
+```
+
+**Final Output:** The bridges are the red, highlighted edges: `[4, 5]`, `[5, 6]`, and `[8, 10]`.
