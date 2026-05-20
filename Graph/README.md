@@ -57,6 +57,9 @@ This folder contains my solutions and notes for various Graph problems and algor
 
 ---
 
+
+# 🛤️ 1. Shortest Path Algorithms
+
 ## ⚖️ Shortest Path Algorithms Comparison: When to use what?
 
 | Algorithm | Graph Constraints | When to use? | Why? | Time Complexity |
@@ -100,103 +103,6 @@ graph LR
 3. Pick smallest unused node: `1`.
 4. Relax edges from `1`: `1->2` (weight 3). New dist to `2` is `dist[1] + 3 = 2 + 3 = 5`. Since 5 < 6, update `dist[2]=5`.
 5. Shortest path to `2` is now 5.
-
----
-
-## 🗺️ 2D to 1D Array Mapping in DSU (Number of Islands II)
-
-### 1. What it is
-Disjoint Set Union (DSU) natively works with a 1D array (`parent`, `size`). But in Grid or 2D Matrix problems, our data is represented as `(x, y)` coordinates. 2D to 1D Mapping is a mathematical formula that converts the `(x, y)` position of any 2D cell into a unique 1D index or number.
-
-Formula: **`1D_Index = x * m + y`** (where `m` is the total number of columns).
-
-### 2. The Problem
-To track parents in DSU, we need an integer index. Initially, we might track the `(x, y)` pair using a `std::map<pair<int,int>, int>` or `unordered_map` in C++. However, using `map` introduces high time complexity overhead ($O(\log Q)$ per query) and makes the code extremely slow. 
-
-**Problem Code:**
-```cpp
-// From G-51 code (Wrong way)
-map<pair<int, int>, int> mp;
-int cnt = 0;
-for (int i = 0; i < A.size(); i++) {
-    auto el = A[i];
-    if(mp.find({el[0],el[1]}) == mp.end()){
-        mp[{el[0], el[1]}] = cnt;
-        cnt++;
-    }
-}
-// For many queries, Map find and insert operations are very Slow.
-```
-
-### 3. The Solution
-We can completely eliminate the `map` and calculate a 2D position directly into a 1D coordinate in $O(1)$ time by using the math formula: `x * m + y`. 
-
-Assume we have a $4 \times 5$ grid ($n = 4, m = 5$):
-- Cell `(0, 0)` $\to 0 \times 5 + 0 = 0$
-- Cell `(1, 3)` $\to 1 \times 5 + 3 = 8$
-- Cell `(2, 2)` $\to 2 \times 5 + 2 = 12$
-- Cell `(3, 4)` $\to 3 \times 5 + 4 = 19$ (Max index is $n \times m - 1$)
-
-Here we multiply by $m$ (Total Columns) because each Row contains exactly $m$ amount of cells. 
-
-**Solution Code:**
-```cpp
-// From G-51 code (Optimized way)
-Disjoint ds(n * m); // Directly pass n*m size for DSU instead of map
-
-for (int i = 0; i < queries.size(); i++) {
-    int x = queries[i][0];
-    int y = queries[i][1];
-    
-    // ...
-    int u = x * m + y; // 2D -> 1D conversion (Current node)
-    
-    for (int j = 0; j < 4; j++) {
-        int newX = dx[j] + x;
-        int newY = dy[j] + y;
-        
-        if (newX >= 0 and newX < n and newY >= 0 and newY < m) {
-            if(mat[newX][newY] == 1){
-                int v = newX * m + newY; // 2D -> 1D conversion (Neighbor node)
-                tmpcnt += ds.unionBySize(u, v);
-            }
-        }
-    }
-    // ...
-}
-```
-
-### 4. A Real-Life Analogy
-**Analogy:** 
-Imagine you are inside an Exam Hall. There are many benches (Rows) and in each line, there are exactly 5 seats (Columns/Seats).
-- Seats in the 1st line (Row 0): 0, 1, 2, 3, 4
-- Seats in the 2nd line (Row 1): 5, 6, 7, 8, 9
-
-If someone says, "I am sitting in the 2nd line (Row 1) at desk number 3 (Column 3)."
-What will be their unique roll number or seat identity?
-They have skipped all the seats in the lines in front of them (1 row $\times$ 5 seats = 5). Adding their exact position in the current line (3) gives their unique seat number $\to 1 \times 5 + 3 = 8$.
-
-**Analogy Code:**
-```typescript
-class ExamHall {
-    totalColumns: number;
-
-    constructor(columns: number) {
-        this.totalColumns = columns;
-    }
-
-    getUniqueSeatNumber(row: number, col: number): number {
-        // row * totalColumns -> Skip the seats of all previous rows
-        // + col -> Move to the exact seat in the current row
-        return (row * this.totalColumns) + col;
-    }
-}
-
-const hall = new ExamHall(5); // 5 seats per row (m = 5)
-
-console.log("Unique ID for (Row 1, Col 3): " + hall.getUniqueSeatNumber(1, 3)); // Output: 8
-console.log("Unique ID for (Row 3, Col 4): " + hall.getUniqueSeatNumber(3, 4)); // Output: 19
-```
 
 ---
 
@@ -435,6 +341,9 @@ Dijkstra finds the shortest path from *one* source to all other nodes. Since we 
 
 ---
 
+
+# 🌲 2. Minimum Spanning Tree (MST)
+
 ## 🌲 Spanning Tree & Minimum Spanning Tree (MST)
 
 ### What is a Spanning Tree?
@@ -560,97 +469,102 @@ graph TD
 
 ---
 
-## 🌉 Bridges in Graph (Tarjan's Algorithm)
+
+# 🔗 3. Disjoint Set Union (DSU)
+
+## 🗺️ 2D to 1D Array Mapping in DSU (Number of Islands II)
 
 ### 1. What it is
-A **Bridge** (or Critical Connection) is an edge in a graph whose removal breaks the graph into two or more disconnected components. To efficiently find all bridges, we use a single **DFS traversal** tracking two things:
-- `disc` (Time of Insertion): The step at which we first reach a node.
-- `low` (Lowest Time of Insertion): The lowest discovery time reachable from the current node (ignoring its parent). 
+Disjoint Set Union (DSU) natively works with a 1D array (`parent`, `size`). But in Grid or 2D Matrix problems, our data is represented as `(x, y)` coordinates. 2D to 1D Mapping is a mathematical formula that converts the `(x, y)` position of any 2D cell into a unique 1D index or number.
+
+Formula: **`1D_Index = x * m + y`** (where `m` is the total number of columns).
 
 ### 2. The Problem
-If we want to find all bridges, the naive approach is to temporarily remove each edge one by one and run a DFS to check if the graph got split. This is incredibly slow and takes $O(E \times (V+E))$ time.
+To track parents in DSU, we need an integer index. Initially, we might track the `(x, y)` pair using a `std::map<pair<int,int>, int>` or `unordered_map` in C++. However, using `map` introduces high time complexity overhead ($O(\log Q)$ per query) and makes the code extremely slow. 
 
 **Problem Code:**
 ```cpp
-// Naive Way (Wrong/Slow way)
-for (auto edge : edges) {
-    removeEdge(edge);
-    int components = countComponents(graph); // Needs massive DFS/BFS again
-    
-    if (components > originalComponents) {
-        bridges.push_back(edge); // It's a bridge!
+// From G-51 code (Wrong way)
+map<pair<int, int>, int> mp;
+int cnt = 0;
+for (int i = 0; i < A.size(); i++) {
+    auto el = A[i];
+    if(mp.find({el[0],el[1]}) == mp.end()){
+        mp[{el[0], el[1]}] = cnt;
+        cnt++;
     }
-    addEdge(edge); // Place it back
 }
+// For many queries, Map find and insert operations are very Slow.
 ```
 
 ### 3. The Solution
-We can optimize this to $O(V+E)$ by using Tarjan's logic. As we traverse, we update the `low` time based on visited adjacent nodes (excluding the direct parent). A bridge is found if, after visiting a child node, its lowest reachable time is strictly greater than the parent's discovery time (`disc[parent] < low[node]` in the code structurally below, where `parent` acts as previous and `node` acts as child). This means the child has no back-edge to reach any earlier completely visited node! 
+We can completely eliminate the `map` and calculate a 2D position directly into a 1D coordinate in $O(1)$ time by using the math formula: `x * m + y`. 
 
-If it can't reach back, the edge between them is critically keeping them connected.
+Assume we have a $4 \times 5$ grid ($n = 4, m = 5$):
+- Cell `(0, 0)` $\to 0 \times 5 + 0 = 0$
+- Cell `(1, 3)` $\to 1 \times 5 + 3 = 8$
+- Cell `(2, 2)` $\to 2 \times 5 + 2 = 12$
+- Cell `(3, 4)` $\to 3 \times 5 + 4 = 19$ (Max index is $n \times m - 1$)
+
+Here we multiply by $m$ (Total Columns) because each Row contains exactly $m$ amount of cells. 
 
 **Solution Code:**
 ```cpp
-// From G-55 code (Optimized Tarjan's approach)
-void dfs(vector<vector<int>>&ans, int node, int parent, int Time, vector<vector<int>> &adj, vector<int>& disc, vector<int>& low, vector<int>& vis){
-    vis[node] = 1;
-    disc[node] = low[node] = ++Time;
+// From G-51 code (Optimized way)
+Disjoint ds(n * m); // Directly pass n*m size for DSU instead of map
 
-    for(auto child:adj[node]){
-        if(child!=parent and !vis[child]){
-            dfs(ans,child, node, Time, adj, disc, low, vis);
-        }
-        else if(child!=parent and vis[child]){
-            low[node] = min(low[node], low[child]);
+for (int i = 0; i < queries.size(); i++) {
+    int x = queries[i][0];
+    int y = queries[i][1];
+    
+    // ...
+    int u = x * m + y; // 2D -> 1D conversion (Current node)
+    
+    for (int j = 0; j < 4; j++) {
+        int newX = dx[j] + x;
+        int newY = dy[j] + y;
+        
+        if (newX >= 0 and newX < n and newY >= 0 and newY < m) {
+            if(mat[newX][newY] == 1){
+                int v = newX * m + newY; // 2D -> 1D conversion (Neighbor node)
+                tmpcnt += ds.unionBySize(u, v);
+            }
         }
     }
-    // done processing
-    low[parent] = min(low[parent], low[node]);
-    if(disc[parent]<low[node]){
-        ans.push_back({parent, node});
-    }
+    // ...
 }
 ```
 
 ### 4. A Real-Life Analogy
 **Analogy:** 
-Imagine islands connected by physical bridges. Suppose you start at Island 1 and go to Island 2, then from Island 2 to Island 3. 
-While traversing Island 3, if you find a secret boat route (or another back-bridge) directly to Island 1, it means the bridge between Island 2 and Island 3 is not critical (you can just use the secret route to go back around). 
-However, if Island 3's lowest reachable destination is just Island 3 itself (it can't reach anywhere back prior to Island 2!), it means if the bridge from Island 2 to 3 collapses, Island 3 is completely isolated and split away.
+Imagine you are inside an Exam Hall. There are many benches (Rows) and in each line, there are exactly 5 seats (Columns/Seats).
+- Seats in the 1st line (Row 0): 0, 1, 2, 3, 4
+- Seats in the 2nd line (Row 1): 5, 6, 7, 8, 9
+
+If someone says, "I am sitting in the 2nd line (Row 1) at desk number 3 (Column 3)."
+What will be their unique roll number or seat identity?
+They have skipped all the seats in the lines in front of them (1 row $\times$ 5 seats = 5). Adding their exact position in the current line (3) gives their unique seat number $\to 1 \times 5 + 3 = 8$.
 
 **Analogy Code:**
 ```typescript
-class IslandTracker {
-    time: number = 0;
-    
-    discoverBridges(
-        island: string,
-        parentIsland: string,
-        disc: Map<string, number>,
-        low: Map<string, number>
-    ) {
-        this.time++;
-        disc.set(island, this.time);
-        low.set(island, this.time);
-        
-        // Simulating that child islands would report back their lowest reachable point
-        // If isolated, its lowest reachable point is strictly greater than parent's discovery time
-        const lowestReachableFromChild = this.time + 1; 
-        
-        const parentTime = disc.get(parentIsland);
-        if (parentTime !== undefined && parentTime < lowestReachableFromChild) {
-            console.log(`Bridge Found! Removing ${parentIsland} -- ${island} isolates the child.`);
-        }
+class ExamHall {
+    totalColumns: number;
+
+    constructor(columns: number) {
+        this.totalColumns = columns;
+    }
+
+    getUniqueSeatNumber(row: number, col: number): number {
+        // row * totalColumns -> Skip the seats of all previous rows
+        // + col -> Move to the exact seat in the current row
+        return (row * this.totalColumns) + col;
     }
 }
 
-const tracker = new IslandTracker();
-const discT = new Map<string, number>();
-const lowT = new Map<string, number>();
+const hall = new ExamHall(5); // 5 seats per row (m = 5)
 
-discT.set("Island A", 1);
-tracker.discoverBridges("Island B", "Island A", discT, lowT); 
-// Output: Bridge Found! Removing Island A -- Island B isolates the child.
+console.log("Unique ID for (Row 1, Col 3): " + hall.getUniqueSeatNumber(1, 3)); // Output: 8
+console.log("Unique ID for (Row 3, Col 4): " + hall.getUniqueSeatNumber(3, 4)); // Output: 19
 ```
 
 ---
@@ -785,6 +699,9 @@ int main() {
 
 ---
 
+
+# 🛑 4. Advanced Graph Connectivity
+
 ## 🔄 Strongly Connected Components (Kosaraju's Algorithm)
 
 ### What is a Strongly Connected Component (SCC)?
@@ -802,6 +719,296 @@ If you try to run a normal DFS to find components in a directed graph, the DFS m
    
 3. **DFS on Reversed Graph (DFS 2):** 
    Pop nodes from the top of the `Stack` one by one. If the popped node is unvisited, start a new DFS on the reversed graph. Because the inter-SCC edges are now reversed, the DFS is physically trapped inside its own SCC and cannot escape to previously unvisited SCCs. Each successful DFS call from the sequence pops out exactly one complete SCC!
+
+---
+
+## 🛑 Articulation Point (Tarjan's Algorithm)
+
+### 1. What it is
+An **Articulation Point** (or Cut Vertex) is a node in a graph that, if removed (along with all its connected edges), splits the graph into two or more disconnected components. Tarjan's algorithm efficiently finds all such points in $O(V+E)$ time using a Depth-First Search (DFS) Tree, keeping track of discovery times (`disc`) and the lowest reachable discovery times (`low`).
+
+**Visualizing an Articulation Point:**
+```mermaid
+graph TD
+    A((0)) --- B((1))
+    A --- C((2))
+    B --- C
+    C --- D((3)):::fillRed
+    D --- E((4))
+    D --- F((5))
+    E --- F
+    classDef fillRed fill:#ff9999,stroke:#333,stroke-width:2px;
+```
+*In this graph, node `3` is an Articulation Point because the left side (0,1,2) and right side (4,5) depend entirely on `3` to communicate.*
+
+**Graph without the Articulation Point:**
+```mermaid
+graph TD
+    A((0)) --- B((1))
+    A --- C((2))
+    B --- C
+    
+    E((4)) --- F((5))
+```
+*Removing `3` breaks the graph into two isolated network islands!*
+
+### 2. The Problem (Mistakes & Naive Approach)
+**Problem without Tarjan's Algorithm:**
+Without this algorithm, finding an articulation point means manually removing nodes one by one, and verifying if the graph breaks using BFS/DFS. That takes $O(V \times (V+E))$ time, which is practically extremely slow!
+
+**Mistakes Made in Implementation:**
+When writing this code, I made a few critical errors that failed the logic and caused memory bounds issues:
+1. **SIGABRT / Memory Bounds (`double free or corruption`):** Attempting to check or update `low[parent]` completely outside the `for` loop. When evaluating the root node, `parent` was `-1`, so `low[-1]` caused an immediate fatal array out-of-bounds crash!
+2. **Passing `Time` by Value:** Passed `int Time` normally instead of via reference. This meant recursive inner calls had their own copies and the `Time` variable didn't update globally. It MUST be a reference (`int &Time`).
+3. **Improper Root Logic:** Root nodes are Articulation points ONLY if they have $>1$ independent children scattered in the DFS tree. Manually incrementing `root++` outside the scope didn't track the actual DFS tree branches at all.
+
+**Problem Code (The Buggy Approach):**
+```cpp
+void dfs(int node, int Time, int parent, vector<vector<int>> &adj, vector<int> &vis, vector<int> &art, vector<int> &disc, vector<int> &low) {
+    vis[node] = 1;
+    low[node] = disc[node] = ++Time; // Bug 1: Time is not passed by reference
+    
+    for(auto child: adj[node]){
+        if(child == parent) continue;
+        if(!vis[child]){
+            dfs(child, Time, node, adj, vis, art, disc, low);
+        } else {
+            low[node] = min(low[node], disc[child]);
+        }
+    }
+    
+    // Bug 2: Accessing low[-1] for the root node creates a fatal SIGABRT!
+    low[parent] = min(low[node], low[parent]); 
+    
+    // Bug 3: Wrong condition placement. Must be evaluated per-child inside the loop!
+    if(disc[parent] <= low[node]){
+        art[parent] = 1;
+    }
+}
+```
+
+### 3. The Solution with Tarjan's Algorithm
+
+The correct approach maintains the `disc` time and updates the `low` reachability *strictly within* the DFS traversals loop structure.
+- **Rule 1 (For non-root nodes):** If `low[child] >= disc[node]`, it means the child has NO back-edge leading to an ancestor above `node`. Thus, removing `node` isolates the `child`. 
+- **Rule 2 (For the Root node):** It is an Articulation Point only if it initiates more than 1 separate DFS branch (`child_count > 1`).
+
+**DFS Tree showing a Back-edge (Low update):**
+```mermaid
+graph TD
+    0((0)) -->|Tree Edge| 1((1))
+    1 -->|Tree Edge| 2((2))
+    2 -.->|Back Edge| 0
+```
+*Node 2 has a back-edge to 0. `low[2]` decreases to `disc[0]`. Thus, 1 is NOT an Articulation Point because 2 has an alternative path backwards.*
+
+**DFS Tree showing Multiple Independent Root Children:**
+```mermaid
+graph TD
+    Root((0)) -->|1st Child Branch| 1((1))
+    Root -->|2nd Child Branch| 2((2))
+    1 --- 3((3))
+    2 --- 4((4))
+```
+*Since the root (0) had to manually initiate the DFS branch twice in the loop, it proves 1 and 2 are absolutely disconnected from each other. Root is an Articulation Point here!*
+
+**Solution Code (Corrected):**
+```cpp
+void dfs(int node, int &timer, int parent, vector<vector<int>> &adj, vector<int> &vis, vector<int> &art, vector<int> &disc, vector<int> &low) {
+    vis[node] = 1;
+    low[node] = disc[node] = ++timer;
+    int child_count = 0; // Local counter to check independent sub-trees
+    
+    for(auto child : adj[node]) {
+        if(child == parent) continue;
+        
+        if(!vis[child]) {
+            dfs(child, timer, node, adj, vis, art, disc, low);
+            
+            // Re-evaluate current lowest reachable node based on the child's discoveries
+            low[node] = min(low[node], low[child]);
+            
+            // Core condition for non-root nodes
+            if(parent != -1 && low[child] >= disc[node]) {
+                art[node] = 1;
+            }
+            child_count++;
+        } else {
+            // Update lowest reachable node via back-edge
+            low[node] = min(low[node], disc[child]);
+        }
+    }
+    
+    // Core condition for root node properly scoped outside loop
+    if(parent == -1 && child_count > 1) {
+        art[node] = 1;
+    }
+}
+```
+
+### 4. A Real-Life Analogy
+**Analogy:**
+Think of the graph as a Corporate Network. Computers are nodes, and ethernet cables are edges. The Articulation Point is the **Main Hub Router** that connects the "Sales Department Network" to the "Engineering Department Network". 
+If an intern trips on the wire and shuts down a normal PC, nobody cares. But if they trip over the Main Hub Router, the two departments are absolutely cut off from each other! The router represents an explicit Articulation Point.
+
+**Analogy Code:**
+```typescript
+class NetworkNode {
+    id: number;
+    connections: NetworkNode[] = [];
+    
+    constructor(id: number) {
+        this.id = id;
+    }
+}
+
+class CorporateNetwork {
+    nodes: Map<number, NetworkNode> = new Map();
+    
+    // Using Tarjan's Logic to find vital routers that cannot fail
+    identifyCriticalRouters(): number[] {
+        let timer = 0;
+        let visited = new Set<number>();
+        let disc = new Map<number, number>();
+        let low = new Map<number, number>();
+        let criticalRouters = new Set<number>();
+        
+        const dfs = (nodeId: number, parentId: number) => {
+            visited.add(nodeId);
+            timer++;
+            disc.set(nodeId, timer);
+            low.set(nodeId, timer);
+            let childCount = 0;
+            
+            const node = this.nodes.get(nodeId);
+            if (!node) return;
+            
+            for (let child of node.connections) {
+                if (child.id === parentId) continue;
+                
+                if (!visited.has(child.id)) {
+                    dfs(child.id, nodeId);
+                    
+                    low.set(nodeId, Math.min(low.get(nodeId)!, low.get(child.id)!));
+                    
+                    // If not root & the child cannot loop back above this node
+                    if (parentId !== -1 && low.get(child.id)! >= disc.get(nodeId)!) {
+                        criticalRouters.add(nodeId);
+                    }
+                    childCount++;
+                } else {
+                    low.set(nodeId, Math.min(low.get(nodeId)!, disc.get(child.id)!));
+                }
+            }
+            
+            // Check for root router
+            if (parentId === -1 && childCount > 1) {
+                criticalRouters.add(nodeId);
+            }
+        };
+        
+        // Start DFS check from arbitrarily chosen router 0
+        dfs(0, -1);
+        
+        return Array.from(criticalRouters);
+    }
+}
+```
+
+---
+
+## 🌉 Bridges in Graph (Tarjan's Algorithm)
+
+### 1. What it is
+A **Bridge** (or Critical Connection) is an edge in a graph whose removal breaks the graph into two or more disconnected components. To efficiently find all bridges, we use a single **DFS traversal** tracking two things:
+- `disc` (Time of Insertion): The step at which we first reach a node.
+- `low` (Lowest Time of Insertion): The lowest discovery time reachable from the current node (ignoring its parent). 
+
+### 2. The Problem
+If we want to find all bridges, the naive approach is to temporarily remove each edge one by one and run a DFS to check if the graph got split. This is incredibly slow and takes $O(E \times (V+E))$ time.
+
+**Problem Code:**
+```cpp
+// Naive Way (Wrong/Slow way)
+for (auto edge : edges) {
+    removeEdge(edge);
+    int components = countComponents(graph); // Needs massive DFS/BFS again
+    
+    if (components > originalComponents) {
+        bridges.push_back(edge); // It's a bridge!
+    }
+    addEdge(edge); // Place it back
+}
+```
+
+### 3. The Solution
+We can optimize this to $O(V+E)$ by using Tarjan's logic. As we traverse, we update the `low` time based on visited adjacent nodes (excluding the direct parent). A bridge is found if, after visiting a child node, its lowest reachable time is strictly greater than the parent's discovery time (`disc[parent] < low[node]` in the code structurally below, where `parent` acts as previous and `node` acts as child). This means the child has no back-edge to reach any earlier completely visited node! 
+
+If it can't reach back, the edge between them is critically keeping them connected.
+
+**Solution Code:**
+```cpp
+// From G-55 code (Optimized Tarjan's approach)
+void dfs(vector<vector<int>>&ans, int node, int parent, int Time, vector<vector<int>> &adj, vector<int>& disc, vector<int>& low, vector<int>& vis){
+    vis[node] = 1;
+    disc[node] = low[node] = ++Time;
+
+    for(auto child:adj[node]){
+        if(child!=parent and !vis[child]){
+            dfs(ans,child, node, Time, adj, disc, low, vis);
+        }
+        else if(child!=parent and vis[child]){
+            low[node] = min(low[node], low[child]);
+        }
+    }
+    // done processing
+    low[parent] = min(low[parent], low[node]);
+    if(disc[parent]<low[node]){
+        ans.push_back({parent, node});
+    }
+}
+```
+
+### 4. A Real-Life Analogy
+**Analogy:** 
+Imagine islands connected by physical bridges. Suppose you start at Island 1 and go to Island 2, then from Island 2 to Island 3. 
+While traversing Island 3, if you find a secret boat route (or another back-bridge) directly to Island 1, it means the bridge between Island 2 and Island 3 is not critical (you can just use the secret route to go back around). 
+However, if Island 3's lowest reachable destination is just Island 3 itself (it can't reach anywhere back prior to Island 2!), it means if the bridge from Island 2 to 3 collapses, Island 3 is completely isolated and split away.
+
+**Analogy Code:**
+```typescript
+class IslandTracker {
+    time: number = 0;
+    
+    discoverBridges(
+        island: string,
+        parentIsland: string,
+        disc: Map<string, number>,
+        low: Map<string, number>
+    ) {
+        this.time++;
+        disc.set(island, this.time);
+        low.set(island, this.time);
+        
+        // Simulating that child islands would report back their lowest reachable point
+        // If isolated, its lowest reachable point is strictly greater than parent's discovery time
+        const lowestReachableFromChild = this.time + 1; 
+        
+        const parentTime = disc.get(parentIsland);
+        if (parentTime !== undefined && parentTime < lowestReachableFromChild) {
+            console.log(`Bridge Found! Removing ${parentIsland} -- ${island} isolates the child.`);
+        }
+    }
+}
+
+const tracker = new IslandTracker();
+const discT = new Map<string, number>();
+const lowT = new Map<string, number>();
+
+discT.set("Island A", 1);
+tracker.discoverBridges("Island B", "Island A", discT, lowT); 
+// Output: Bridge Found! Removing Island A -- Island B isolates the child.
+```
 
 ---
 
