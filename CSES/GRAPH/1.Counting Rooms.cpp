@@ -45,7 +45,8 @@ int main()
     {
         for (int j = 0; j < m; j++)
         {
-            if(adj[i][j]=='.' and !vis[i][j]){
+            if (adj[i][j] == '.' and !vis[i][j])
+            {
                 ans++;
                 dfs(i, j, n, m, vis, adj);
             }
