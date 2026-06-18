@@ -53,8 +53,8 @@ int main()
         cout << "IMPOSSIBLE" << endl;
         return 0;
     }
-    for (int u = 1; u <= n; u++)
-        cout << ans[u] << " ";
+    for (int i = 1; i <= n; i++)
+        cout << ans[i] << " ";
     cout << endl;
 
     return 0;
